@@ -17,9 +17,7 @@ enum RaceState {
   waitForArm,
   armed,
   raceLowGear,
-  raceChangeGear,
   raceHighGear,
-  raceBrake
   test // used when testing a new feature, should not be set in normal execution
 }
 enum Gear{
@@ -99,14 +97,9 @@ void handleState(){
       }
       break;
     case raceLowGear:
-      // exit condition: time elapsed > gearChangeTime
-      
-      break;
-    case raceChangeGear:
+      // exit condition: time elapsed > gearChangeTime    
       break;
     case raceHighGear:
-      break;
-    case raceBrake:
       break;
     case test:
       break;
