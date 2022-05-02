@@ -78,6 +78,7 @@ void handleState(){
   switch(state){
     case waitForArm:
       digitalWrite(ARM_LED, LOW); // keep armed LED off
+      setMotorState(MotorState{0, false}); // keep motors braked
       // exit condition: arm button pressed
       if(digitalRead(ARM_BUTTON) == LOW){
         state = armed;
@@ -97,9 +98,20 @@ void handleState(){
       }
       break;
     case raceLowGear:
-      // exit condition: time elapsed > gearChangeTime    
+      // exit condition: time elapsed > gearChangeTime
+      long timeElapsed = millis() - raceStartTime
+      if(timeElapsed > gearChangeTime){
+        state = raceHighGear;
+        changeGear(high);
+      }    
       break;
     case raceHighGear:
+      // exit condition: time elapsed > brakeTime
+      long timeElapsed = millis() - raceStartTime
+      if(timeElapsed > brakeTime){
+        state = waitForArm;
+        changeGear(low);
+      }  
       break;
     case test:
       break;
