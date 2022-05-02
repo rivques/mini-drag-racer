@@ -40,6 +40,8 @@ long raceStartTime;
 
 Servo shifter;
 
+String inString = "";    // string to hold serial input
+
 void setup() {
   // set up h-bridge
   pinMode(AIN1, OUTPUT);
@@ -70,7 +72,26 @@ void setup() {
 
 void loop() {
   handleState();
-  // TODO: add serial parsing for reconfig of gearChangeTime and brakeTime
+  // Tunable shift and brake timing over serial:
+  while (Serial.available() > 0) {
+    int inChar = Serial.read();
+    if (isDigit(inChar)) {
+      // convert the incoming byte to a char and add it to the string:
+      inString += (char)inChar;
+    } else if (inChar == 'g') {
+      // it's the gear change time
+      gearChangeTime = inString.toInt();
+      Serial.print("Changed gear shift time to ");
+      Serial.println(gearChangeTime);
+    } else if (inChar == 'b') {
+      // it's the brake time
+      brakeTime = inString.toInt();
+      Serial.print("Changed brake time to ");
+      Serial.println(brakeTime);
+    } else {
+      Serial.print("Got unrecognized char ");
+      Serial.println((char)inChar);
+    }
 }
 
 void handleState(){
