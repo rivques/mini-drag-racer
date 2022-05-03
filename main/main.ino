@@ -19,17 +19,17 @@ enum RaceState {
   raceLowGear,
   raceHighGear,
   test // used when testing a new feature, should not be set in normal execution
-}
+};
 enum Gear{
   high = 10, // the enum does double duty by serving as both a human-readable name
   low = 170, // and a map from gear name to servo value for that gear
   neutral = 0
-}
+};
 struct MotorState{
   int motorSpeed;
-  bool isCoastMode = true;
+  bool isCoastMode;
 };
-bool test = false;
+
 RaceState state;
 Gear currentGear;
 MotorState currentMotorState;
@@ -92,14 +92,17 @@ void loop() {
       Serial.print("Got unrecognized char ");
       Serial.println((char)inChar);
     }
+  }
 }
 
 void handleState(){
   // at some point I should write a generalized StateMachine lib and make this neater
+  long timeElapsed = millis() - raceStartTime; // a few cases need this and the compiler was being dumb so this is out here now
   switch(state){
     case waitForArm:
       digitalWrite(ARM_LED, LOW); // keep armed LED off
-      setMotorState(MotorState{0, false}); // keep motors braked
+      MotorState brakeState = {0, false};
+      setMotorState(brakeState); // keep motors braked
       // exit condition: arm button pressed
       if(digitalRead(ARM_BUTTON) == LOW){
         state = armed;
@@ -115,12 +118,12 @@ void handleState(){
         // set the start time so we can shift and brake relative to it
         raceStartTime = millis();
         // start the motors
-        setMotorState(MotorState{255})
+        MotorState fullSpeedState = {255};
+        setMotorState(fullSpeedState);
       }
       break;
     case raceLowGear:
       // exit condition: time elapsed > gearChangeTime
-      long timeElapsed = millis() - raceStartTime
       if(timeElapsed > gearChangeTime){
         state = raceHighGear;
         changeGear(high);
@@ -128,7 +131,6 @@ void handleState(){
       break;
     case raceHighGear:
       // exit condition: time elapsed > brakeTime
-      long timeElapsed = millis() - raceStartTime
       if(timeElapsed > brakeTime){
         state = waitForArm;
         changeGear(low);
@@ -150,7 +152,8 @@ void changeGear(Gear targetGear){
   }
   currentGear = targetGear;
   // 1. coast the motors
-  setMotorState(MotorState{0, true});
+  MotorState coastState = {0, true};
+  setMotorState(coastState);
   // 2. wait a little for the h-bridge to disengage
   delay(2);
   // 3. move servo to correct position for gear
@@ -158,7 +161,7 @@ void changeGear(Gear targetGear){
   // 4. wait for the servo to shift positions
   delay(250);
   // 5. restore motor speeds
-  setMotorState(currentMotorState)
+  setMotorState(currentMotorState);
 }
 
 void setMotorState(MotorState newState){
