@@ -26,10 +26,10 @@ enum Gear{
   neutral = 0
 }
 struct MotorState{
-  int speed;
+  int motorSpeed;
   bool isCoastMode = true;
-}
-
+};
+bool test = false;
 RaceState state;
 Gear currentGear;
 MotorState currentMotorState;
@@ -164,7 +164,7 @@ void changeGear(Gear targetGear){
 void setMotorState(MotorState newState){
   // make sure to set currentMotorState ouside of here because changeGear relies
   // on this not touching it
-  if(newState.speed == 0){
+  if(newState.motorSpeed == 0){
     // special handling for stop mode
     if(newState.isCoastMode){
       digitalWrite(AIN1, LOW);
@@ -178,18 +178,18 @@ void setMotorState(MotorState newState){
       digitalWrite(BIN2, HIGH);
     }
   } else {
-    setHBridge(AIN1, AIN2, abs(newState.speed), (newState.speed < 0) != REVERSE_A_MOTOR /*drive pin 2 if the speed is negative xor it should be reversed*/);
-    setHBridge(BIN1, BIN2, abs(newState.speed), (newState.speed < 0) != REVERSE_B_MOTOR /*drive pin 2 if the speed is negative xor it should be reversed*/);
+    setHBridge(AIN1, AIN2, abs(newState.motorSpeed), (newState.motorSpeed < 0) != REVERSE_A_MOTOR /*drive pin 2 if the speed is negative xor it should be reversed*/);
+    setHBridge(BIN1, BIN2, abs(newState.motorSpeed), (newState.motorSpeed < 0) != REVERSE_B_MOTOR /*drive pin 2 if the speed is negative xor it should be reversed*/);
   }
 }
 
-void setHBridge(int in1, int in2, int speed, bool drivePin1){
+void setHBridge(int in1, int in2, int motorSpeed, bool drivePin1){
   // pwm the high pin
   if(drivePin1){
     digitalWrite(in2, LOW);
-    analogWrite(in1, speed);
+    analogWrite(in1, motorSpeed);
   } else {
     digitalWrite(in1, LOW);
-    analogWrite(in2, speed);
+    analogWrite(in2, motorSpeed);
   }
 }
