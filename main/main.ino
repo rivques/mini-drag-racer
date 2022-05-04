@@ -71,6 +71,8 @@ void setup() {
 }
 
 void loop() {
+  Serial.print("State: ");
+  Serial.println(state);
   handleState();
   // Tunable shift and brake timing over serial:
   while (Serial.available() > 0) {
@@ -83,11 +85,13 @@ void loop() {
       gearChangeTime = inString.toInt();
       Serial.print("Changed gear shift time to ");
       Serial.println(gearChangeTime);
+      inString = "";
     } else if (inChar == 'b') {
       // it's the brake time
       brakeTime = inString.toInt();
       Serial.print("Changed brake time to ");
       Serial.println(brakeTime);
+      inString = "";
     } else {
       Serial.print("Got unrecognized char ");
       Serial.println((char)inChar);
@@ -98,10 +102,11 @@ void loop() {
 void handleState(){
   // at some point I should write a generalized StateMachine lib and make this neater
   long timeElapsed = millis() - raceStartTime; // a few cases need this and the compiler was being dumb so this is out here now
+  MotorState brakeState = {0, false}; // ^^^^^^^^^^^^^^^^
+  MotorState fullSpeedState = {255}; // ^^^^^^^^^
   switch(state){
     case waitForArm:
       digitalWrite(ARM_LED, LOW); // keep armed LED off
-      MotorState brakeState = {0, false};
       setMotorState(brakeState); // keep motors braked
       // exit condition: arm button pressed
       if(digitalRead(ARM_BUTTON) == LOW){
@@ -112,13 +117,12 @@ void handleState(){
       }
       break;
     case armed:
-      // exit condition: photointerruptor is light-on, so trigger on HIGH (empty)
-      if(digitalRead(PHOTO_PIN == HIGH)){
+      // exit condition: photointerruptor unblocked
+      if(digitalRead(PHOTO_PIN) == LOW){
         state = raceLowGear;
         // set the start time so we can shift and brake relative to it
         raceStartTime = millis();
         // start the motors
-        MotorState fullSpeedState = {255};
         setMotorState(fullSpeedState);
       }
       break;
@@ -127,6 +131,7 @@ void handleState(){
       if(timeElapsed > gearChangeTime){
         state = raceHighGear;
         changeGear(high);
+        setMotorState(fullSpeedState);
       }    
       break;
     case raceHighGear:
@@ -159,7 +164,7 @@ void changeGear(Gear targetGear){
   // 3. move servo to correct position for gear
   shifter.write(targetGear);
   // 4. wait for the servo to shift positions
-  delay(250);
+  delay(500);
   // 5. restore motor speeds
   setMotorState(currentMotorState);
 }
