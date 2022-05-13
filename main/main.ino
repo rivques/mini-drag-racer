@@ -9,9 +9,9 @@
 #define BIN2 5
 
 #define SERVO_PIN 8
-#define ARM_BUTTON 7
+#define ARM_BUTTON A1
 #define ARM_LED 6
-#define PHOTO_PIN 2
+#define PHOTO_PIN A0
 
 enum RaceState {
   waitForArm,
@@ -21,9 +21,9 @@ enum RaceState {
   test // used when testing a new feature, should not be set in normal execution
 };
 enum Gear{
-  high = 10, // the enum does double duty by serving as both a human-readable name
-  low = 170, // and a map from gear name to servo value for that gear
-  neutral = 0
+  high = 35, // the enum does double duty by serving as both a human-readable name
+  low = 115, // and a map from gear name to servo value for that gear
+  neutral = 75
 };
 struct MotorState{
   int motorSpeed;
@@ -34,8 +34,8 @@ RaceState state;
 Gear currentGear;
 MotorState currentMotorState;
 
-long gearChangeTime = 2000; // not const b/c can be reconfig'd over serial
-long brakeTime = 5000; // ^^^^^^^^
+long gearChangeTime = 5000; // not const b/c can be reconfig'd over serial
+long brakeTime = 10000; // ^^^^^^^^
 long raceStartTime;
 
 Servo shifter;
@@ -92,6 +92,18 @@ void loop() {
       Serial.print("Changed brake time to ");
       Serial.println(brakeTime);
       inString = "";
+    } else if (inChar == 'n'){
+      // shift to neutral
+      Serial.println("Shifting to neutral");
+      changeGear(neutral);
+    } else if (inChar == 'h'){
+      // shift to high
+      Serial.println("Shifting to high");
+      changeGear(high);
+    } else if (inChar == 'l'){
+      // shift to low
+      Serial.println("Shifting to low");
+      changeGear(low);
     } else {
       Serial.print("Got unrecognized char ");
       Serial.println((char)inChar);
