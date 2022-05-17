@@ -1,7 +1,7 @@
 #include <Servo.h>
 
 #define REVERSE_A_MOTOR false 
-#define REVERSE_B_MOTOR false
+#define REVERSE_B_MOTOR true
 #define AIN1 11
 #define AIN2 10
 #define SLP 12
@@ -21,8 +21,8 @@ enum RaceState {
   test // used when testing a new feature, should not be set in normal execution
 };
 enum Gear{
-  high = 35, // the enum does double duty by serving as both a human-readable name
-  low = 115, // and a map from gear name to servo value for that gear
+  high = 25, // the enum does double duty by serving as both a human-readable name
+  low = 125, // and a map from gear name to servo value for that gear
   neutral = 75
 };
 struct MotorState{
@@ -71,8 +71,8 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("State: ");
-  Serial.println(state);
+  //Serial.print("State: ");
+  //Serial.println(state);
   handleState();
   // Tunable shift and brake timing over serial:
   while (Serial.available() > 0) {
@@ -169,7 +169,7 @@ void changeGear(Gear targetGear){
   }
   currentGear = targetGear;
   // 1. coast the motors
-  MotorState coastState = {0, true};
+  MotorState coastState = {254};
   setMotorState(coastState);
   // 2. wait a little for the h-bridge to disengage
   delay(2);
@@ -205,6 +205,8 @@ void setMotorState(MotorState newState){
 
 void setHBridge(int in1, int in2, int motorSpeed, bool drivePin1){
   // pwm the high pin
+  Serial.print("In SetHBridge, motorSpeed: ");
+  Serial.println(motorSpeed);
   if(drivePin1){
     digitalWrite(in2, LOW);
     analogWrite(in1, motorSpeed);
