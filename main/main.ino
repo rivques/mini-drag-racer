@@ -78,6 +78,7 @@ void loop() {
   while (Serial.available() > 0) {
     int inChar = Serial.read();
     if (isDigit(inChar)) {
+      
       // convert the incoming byte to a char and add it to the string:
       inString += (char)inChar;
     } else if (inChar == 'g') {
@@ -169,8 +170,8 @@ void changeGear(Gear targetGear){
   }
   currentGear = targetGear;
   // 1. coast the motors
-  MotorState coastState = {254};
-  setMotorState(coastState);
+  MotorState coastState = {0, true};
+  //setMotorState(coastState);
   // 2. wait a little for the h-bridge to disengage
   delay(2);
   // 3. move servo to correct position for gear
@@ -178,7 +179,7 @@ void changeGear(Gear targetGear){
   // 4. wait for the servo to shift positions
   delay(500);
   // 5. restore motor speeds
-  setMotorState(currentMotorState);
+  //setMotorState(currentMotorState);
 }
 
 void setMotorState(MotorState newState){
