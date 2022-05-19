@@ -13,7 +13,7 @@
 #define ARM_LED 6
 #define PHOTO_PIN A0
 
-#define SHIFT_TIME 400
+#define SHIFT_TIME 600
 
 enum RaceState {
   waitForArm,
