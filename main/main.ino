@@ -13,6 +13,8 @@
 #define ARM_LED 6
 #define PHOTO_PIN A0
 
+#define SHIFT_TIME 400
+
 enum RaceState {
   waitForArm,
   armed,
@@ -168,18 +170,23 @@ void changeGear(Gear targetGear){
   if(currentGear == targetGear){
     return;
   }
-  currentGear = targetGear;
   // 1. coast the motors
   MotorState coastState = {0, true};
   //setMotorState(coastState);
   // 2. wait a little for the h-bridge to disengage
   delay(2);
   // 3. move servo to correct position for gear
-  shifter.write(targetGear);
+  for(float i = 0; i < 1; i+=0.01) {
+    float destPos = currentGear + (targetGear - currentGear ) * i;// lerp
+    shifter.write(destPos);
+
+    delay(SHIFT_TIME/100);
+  }
   // 4. wait for the servo to shift positions
   delay(500);
   // 5. restore motor speeds
   //setMotorState(currentMotorState);
+  currentGear = targetGear;
 }
 
 void setMotorState(MotorState newState){
