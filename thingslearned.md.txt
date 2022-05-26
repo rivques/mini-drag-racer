@@ -1,0 +1,6 @@
+# Things I learned (to avoid)
+- Brownouts
+- 1-72s
+- tolerance
+- nylocks
+- impossible sandwhiches
