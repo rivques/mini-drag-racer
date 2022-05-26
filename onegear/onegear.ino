@@ -37,7 +37,7 @@ Gear currentGear;
 MotorState currentMotorState;
 
 long gearChangeTime = 5000; // not const b/c can be reconfig'd over serial
-long brakeTime = 10000; // ^^^^^^^^
+long brakeTime = 4000; // ^^^^^^^^
 long raceStartTime;
 
 Servo shifter;
@@ -148,10 +148,8 @@ void handleState(){
       break;
     case raceLowGear:
       // exit condition: time elapsed > gearChangeTime
-      if(timeElapsed > gearChangeTime){
-        state = raceHighGear;
-        changeGear(high);
-        setMotorState(fullSpeedState);
+      if(timeElapsed > brakeTime){
+        state = waitForArm;
       }    
       break;
     case raceHighGear:
