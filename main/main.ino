@@ -36,8 +36,8 @@ RaceState state;
 Gear currentGear;
 MotorState currentMotorState;
 
-long gearChangeTime = 5000; // not const b/c can be reconfig'd over serial
-long brakeTime = 10000; // ^^^^^^^^
+long gearChangeTime = 1100; // not const b/c can be reconfig'd over serial
+long brakeTime = 2700; // ^^^^^^^^
 long raceStartTime;
 
 Servo shifter;
@@ -181,12 +181,13 @@ void changeGear(Gear targetGear){
   // 2. wait a little for the h-bridge to disengage
   delay(2);
   // 3. move servo to correct position for gear
-  for(float i = 0; i < 1; i+=0.01) {
+  /*for(float i = 0; i < 1; i+=0.01) {
     float destPos = currentGear + (targetGear - currentGear ) * i;// lerp
     shifter.write(destPos);
 
     delay(SHIFT_TIME/100);
-  }
+  }*/
+  shifter.write(targetGear);
   // 4. wait for the servo to shift positions
   delay(500);
   // 5. restore motor speeds

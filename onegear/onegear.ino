@@ -37,7 +37,7 @@ Gear currentGear;
 MotorState currentMotorState;
 
 long gearChangeTime = 5000; // not const b/c can be reconfig'd over serial
-long brakeTime = 4000; // ^^^^^^^^
+long brakeTime = 2850; // ^^^^^^^^
 long raceStartTime;
 
 Servo shifter;
